@@ -91,7 +91,7 @@ export default function ContactUs() {
                      Toast.show({
                                                             type: 'success',
                                                             text1: 'Success',
-                                                            text2: 'OTP sent successfully on email',
+                                                            text2: `OTP sent successfully on email${response?.otp}`,
                                                         });
                     setShowOTP(true);
                 } else {

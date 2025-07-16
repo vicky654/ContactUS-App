@@ -8,8 +8,39 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 import DropDownPicker from 'react-native-dropdown-picker';
+
+// Language constants
+export const LANGUAGES = {
+  en: {
+    heading: 'Thank you for contacting DPDP Consultants,',
+    body1:
+      'We request your explicit consent to process your personal data in accordance with DPDP Act, 2023...',
+    agree: 'Agree',
+    close: 'Close',
+  },
+  hi: {
+    heading: 'डीपीडीपी कंसल्टेंट्स से संपर्क करने के लिए धन्यवाद',
+    body1:
+      'हम अनुरोध करते हैं कि आप अपनी व्यक्तिगत जानकारी को डीपीडीपी अधिनियम, 2023 के अनुसार संसाधित करने के लिए सहमति दें...',
+    agree: 'सहमत हूँ',
+    close: 'बंद करें',
+  },
+  mr: {
+    heading: 'डीपीडीपी सल्लागारांशी संपर्क केल्याबद्दल धन्यवाद',
+    body1:
+      'कृपया आपल्या वैयक्तिक डेटावर प्रक्रिया करण्यासाठी आपली स्पष्ट संमती द्या...',
+    agree: 'सहमती',
+    close: 'बंद',
+  },
+  pa: {
+    heading: 'DPDP ਕਨਸਲਟੈਂਟਸ ਨਾਲ ਸੰਪਰਕ ਕਰਨ ਲਈ ਧੰਨਵਾਦ',
+    body1:
+      'ਅਸੀਂ ਤੁਹਾਡੀ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸੰਸਾਧਨ ਕਰਨ ਲਈ ਤੁਹਾਡੀ ਸਪਸ਼ਟ ਸਹਿਮਤੀ ਦੀ ਬੇਨਤੀ ਕਰਦੇ ਹਾਂ...',
+    agree: 'ਸਹਿਮਤ',
+    close: 'ਬੰਦ ਕਰੋ',
+  },
+};
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -19,7 +50,10 @@ const ConsentModal = ({ visible, onClose, onAgree, lang, setLang }) => {
     { label: 'English', value: 'en' },
     { label: 'Hindi', value: 'hi' },
     { label: 'Marathi', value: 'mr' },
+    { label: 'Punjabi', value: 'pa' },
   ]);
+
+  const translations = LANGUAGES[lang] || LANGUAGES['en'];
 
   return (
     <Modal
@@ -40,25 +74,21 @@ const ConsentModal = ({ visible, onClose, onAgree, lang, setLang }) => {
               setOpen={setOpen}
               setValue={setLang}
               setItems={setItems}
-              zIndex={1000}
               placeholder="Select Language"
-              style={{ marginBottom: 12 }}
+              style={styles.dropdown}
+              containerStyle={styles.dropdownContainer}
+              dropDownContainerStyle={styles.dropdownList}
             />
 
-            <Text style={styles.title}>
-              Thank you for contacting DPDP Consultants,
-            </Text>
-            <Text style={styles.desc}>
-              We request your explicit consent to process your personal data in
-              accordance with DPDP Act, 2023...
-            </Text>
+            <Text style={styles.title}>{translations.heading}</Text>
+            <Text style={styles.desc}>{translations.body1}</Text>
 
             <View style={styles.actions}>
               <TouchableOpacity onPress={onAgree} style={styles.agreeBtn}>
-                <Text style={styles.agreeText}>Agree</Text>
+                <Text style={styles.agreeText}>{translations.agree}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                <Text style={styles.closeText}>Close</Text>
+                <Text style={styles.closeText}>{translations.close}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -85,11 +115,32 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 20,
+    zIndex: 1000,
   },
   label: {
     fontWeight: '600',
     fontSize: 14,
     marginBottom: 6,
+  },
+  dropdown: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    height: 45,
+    width: '100%',
+  },
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 12,
+    zIndex: 1000,
+  },
+  dropdownList: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
+    width: '100%',
+    zIndex: 999,
   },
   title: {
     fontWeight: 'bold',
