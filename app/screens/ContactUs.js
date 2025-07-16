@@ -21,6 +21,10 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { callApi } from '../../utils/callApi';
 import ConsentModal from './../Modals/ConsentModal';
+
+
+
+
 const ContactSchema = Yup.object().shape({
     fullName: Yup.string().required('Please enter your full name'),
     email: Yup.string().email('Please enter a valid email address').required('Email is required'),
@@ -69,7 +73,7 @@ export default function ContactUs() {
             message: '',
             otp: '',
         },
-        // validationSchema: ContactSchema,
+        validationSchema: ContactSchema,
         onSubmit: async (values, { setValues }) => {
             const queryParams = {
                 name: values.fullName,

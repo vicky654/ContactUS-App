@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-// Language constants
+// 🔤 Language Constants
 export const LANGUAGES = {
   en: {
     heading: 'Thank you for contacting DPDP Consultants,',
@@ -78,6 +78,9 @@ const ConsentModal = ({ visible, onClose, onAgree, lang, setLang }) => {
               style={styles.dropdown}
               containerStyle={styles.dropdownContainer}
               dropDownContainerStyle={styles.dropdownList}
+              listMode="SCROLLVIEW"
+              zIndex={1000}
+              zIndexInverse={3000}
             />
 
             <Text style={styles.title}>{translations.heading}</Text>
@@ -111,7 +114,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     width: '90%',
-    maxHeight: screenHeight * 0.7,
+    maxHeight: screenHeight * 0.8,
+    zIndex: 1000,
   },
   modalContent: {
     padding: 20,
@@ -122,6 +126,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 6,
   },
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 12,
+    zIndex: 1000,
+  },
   dropdown: {
     borderColor: '#ccc',
     borderWidth: 1,
@@ -129,11 +138,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 45,
     width: '100%',
-  },
-  dropdownContainer: {
-    width: '100%',
-    marginBottom: 12,
-    zIndex: 1000,
   },
   dropdownList: {
     borderColor: '#ccc',
@@ -156,6 +160,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   agreeBtn: {
     backgroundColor: '#007bff',
