@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   Modal,
@@ -7,61 +7,70 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-
-// 🔤 Language Constants
-export const LANGUAGES = {
-  en: {
-    heading: 'Thank you for contacting DPDP Consultants,',
-    body1:
-      'We request your explicit consent to process your personal data in accordance with DPDP Act, 2023...',
-    agree: 'Agree',
-    close: 'Close',
-  },
-  hi: {
-    heading: 'डीपीडीपी कंसल्टेंट्स से संपर्क करने के लिए धन्यवाद',
-    body1:
-      'हम अनुरोध करते हैं कि आप अपनी व्यक्तिगत जानकारी को डीपीडीपी अधिनियम, 2023 के अनुसार संसाधित करने के लिए सहमति दें...',
-    agree: 'सहमत हूँ',
-    close: 'बंद करें',
-  },
-  mr: {
-    heading: 'डीपीडीपी सल्लागारांशी संपर्क केल्याबद्दल धन्यवाद',
-    body1:
-      'कृपया आपल्या वैयक्तिक डेटावर प्रक्रिया करण्यासाठी आपली स्पष्ट संमती द्या...',
-    agree: 'सहमती',
-    close: 'बंद',
-  },
-  pa: {
-    heading: 'DPDP ਕਨਸਲਟੈਂਟਸ ਨਾਲ ਸੰਪਰਕ ਕਰਨ ਲਈ ਧੰਨਵਾਦ',
-    body1:
-      'ਅਸੀਂ ਤੁਹਾਡੀ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਨੂੰ ਸੰਸਾਧਨ ਕਰਨ ਲਈ ਤੁਹਾਡੀ ਸਪਸ਼ਟ ਸਹਿਮਤੀ ਦੀ ਬੇਨਤੀ ਕਰਦੇ ਹਾਂ...',
-    agree: 'ਸਹਿਮਤ',
-    close: 'ਬੰਦ ਕਰੋ',
-  },
-};
+import RenderHTML from 'react-native-render-html';
 
 const { height: screenHeight } = Dimensions.get('window');
 
-const ConsentModal = ({ visible, onClose, onAgree, lang, setLang }) => {
-  const [open, setOpen] = React.useState(false);
-  const [items, setItems] = React.useState([
-    { label: 'English', value: 'en' },
-    { label: 'Hindi', value: 'hi' },
-    { label: 'Marathi', value: 'mr' },
-    { label: 'Punjabi', value: 'pa' },
-  ]);
+const languageMap = {
+  English: 'en',
+  Hindi: 'hi',
+  Marathi: 'mr',
+  Punjabi: 'pa',
+  Gujarati: 'gu',
+  Bengali: 'bn',
+  Tamil: 'ta',
+  Telugu: 'te',
+  Kannada: 'kn',
+  Malayalam: 'ml',
+  Urdu: 'ur',
+  Assamese: 'as',
+  Odia: 'or',
+  Sindhi: 'sd',
+  Sanskrit: 'sa',
+  Manipuri: 'mni',
+  Konkani: 'kok',
+  Nepali: 'ne',
+  Bodo: 'brx',
+  Dogri: 'doi',
+  Santhali: 'sat',
+  Maithili: 'mai',
+};
 
-  const translations = LANGUAGES[lang] || LANGUAGES['en'];
+const reverseLanguageMap = Object.entries(languageMap).reduce((acc, [label, code]) => {
+  acc[code] = label;
+  return acc;
+}, {});
+
+const ConsentModal = ({ visible, onClose, onAgree, lang, setLang, templateText }) => {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([]);
+  const { width } = useWindowDimensions();
+
+  const generateDropdownItems = (data) => {
+    return Object.keys(data)
+      .filter((lang) => languageMap[lang])
+      .map((lang) => ({
+        label: lang,
+        value: languageMap[lang],
+      }));
+  };
+
+  useEffect(() => {
+    if (templateText && typeof templateText === 'object') {
+      const dropdownItems = generateDropdownItems(templateText);
+      setItems(dropdownItems);
+    }
+  }, [templateText]);
+
+  const selectedLangName = reverseLanguageMap[lang];
+  const selectedContentRaw = templateText?.[selectedLangName]?.content || '';
+  const selectedContent = typeof selectedContentRaw === 'string' ? selectedContentRaw : '';
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalBox}>
           <ScrollView contentContainerStyle={styles.modalContent}>
@@ -83,15 +92,24 @@ const ConsentModal = ({ visible, onClose, onAgree, lang, setLang }) => {
               zIndexInverse={3000}
             />
 
-            <Text style={styles.title}>{translations.heading}</Text>
-            <Text style={styles.desc}>{translations.body1}</Text>
+            <Text style={styles.title}>Consent Notice</Text>
+
+            {selectedContent.length > 0 ? (
+              <View style={styles.htmlWrapper}>
+                <ScrollView nestedScrollEnabled>
+                  <RenderHTML contentWidth={width} source={{ html: selectedContent }} />
+                </ScrollView>
+              </View>
+            ) : (
+              <Text style={styles.desc}>No content available for selected language.</Text>
+            )}
 
             <View style={styles.actions}>
               <TouchableOpacity onPress={onAgree} style={styles.agreeBtn}>
-                <Text style={styles.agreeText}>{translations.agree}</Text>
+                <Text style={styles.agreeText}>Agree</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                <Text style={styles.closeText}>{translations.close}</Text>
+                <Text style={styles.closeText}>Close</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -114,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     width: '90%',
-    maxHeight: screenHeight * 0.8,
+    maxHeight: screenHeight * 0.85,
     zIndex: 1000,
   },
   modalContent: {
@@ -150,7 +168,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginTop: 10,
-    marginBottom: 6,
+    marginBottom: 10,
   },
   desc: {
     fontSize: 14,
@@ -180,5 +198,13 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontWeight: 'bold',
+  },
+  htmlWrapper: {
+    maxHeight: 350,
+    borderWidth: 1,
+    borderColor: '#eee',
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 6,
   },
 });

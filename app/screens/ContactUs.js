@@ -38,15 +38,22 @@ export default function ContactUs() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [showOTP, setShowOTP] = useState(false);
+
     const [showConsentModal, setShowConsentModal] = useState(false);
     const [selectedLang, setSelectedLang] = useState('en');
     const [open, setOpen] = useState(false);
-    const [topicValue, setTopicValue] = useState('Compliance Evaluation & Risk Assessment');
-    const [items, setItems] = useState([
-        { label: 'Compliance Evaluation & Risk Assessment', value: 'Compliance Evaluation & Risk Assessment' },
-        { label: 'Consent Management Solution', value: 'Consent Management Solution' },
-        { label: 'Data Mapping & Inventory', value: 'Data Mapping & Inventory' },
-    ]);
+    const [templateText, setTemplateText] = useState('');
+
+const [topicValue, setTopicValue] = useState('Compliance Evaluation & Risk Assessment');
+
+const [items, setItems] = useState([
+  { label: 'Compliance Evaluation & Risk Assessment', value: 'Compliance Evaluation & Risk Assessment' },
+  { label: 'Consent Management Solution', value: 'Consent Management Solution' },
+  { label: 'Data Mapping & Inventory', value: 'Data Mapping & Inventory' },
+]);
+
+
+    const [data, setData] = useState();
     // Toast.show({
     //     type: 'success',
     //     text1: 'Success',
@@ -73,7 +80,7 @@ export default function ContactUs() {
             message: '',
             otp: '',
         },
-        validationSchema: ContactSchema,
+        // validationSchema: ContactSchema,
         onSubmit: async (values, { setValues }) => {
             const queryParams = {
                 name: values.fullName,
@@ -97,6 +104,7 @@ export default function ContactUs() {
                         text1: 'Success',
                         text2: `OTP sent successfully on email${response?.otp}`,
                     });
+                    setData(response);
                     setShowOTP(true);
                 } else {
                     Toast.show({
@@ -135,6 +143,61 @@ export default function ContactUs() {
             }).start();
         }, 1500);
     }, []);
+const handleConsent = async () => {
+    setShowConsentModal(false);
+    try {
+      setLoading(true);
+      const response = await callApi(
+        'https://tech.portal-uat.dpdpconsultants.com/api/v2/create_consent',
+        'POST',
+        {
+          name: formik.values.fullName,
+          department: 'careers',
+          email: formik.values.email,
+          phone: formik.values.contact,
+          otp: formik.values.otp,
+        }
+      );
+
+      if (response?.code === 200 && response?.data?.message !== 'OTP not matched') {
+        setTimeout(() => {
+          Alert.alert('Consent Given', 'Thank you!');
+        }, 2000);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: response?.data?.message || 'OTP verification failed',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', error.message || 'OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+const openConsentModal = async () => {
+  try {
+    setLoading(true); // Show loader
+    const response = await callApi(
+      'https://tech.portal-uat.dpdpconsultants.com/api/v2/get/template_details',
+      'GET',
+      { department_name: 'Careers' }
+    );
+
+    const template = response?.data || 'No template found';
+    setTemplateText(template);
+    setShowConsentModal(true);
+  } catch (error) {
+    Alert.alert('Error', error.message || 'Failed to load consent template');
+  } finally {
+    setLoading(false); // Hide loader
+  }
+};
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -143,9 +206,7 @@ export default function ContactUs() {
             <View style={styles.headerContainer}>
                 <Text style={styles.headerText}>Contact Us 💬</Text>
             </View>
-            {/* <TouchableOpacity onPress={handlePress} style={styles.button}>
-  <Text style={styles.buttonText}>Show Toast</Text>
-</TouchableOpacity> */}
+      
 
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
@@ -275,54 +336,44 @@ export default function ContactUs() {
                                     <TouchableOpacity
                                         style={styles.button}
                                         onPress={async () => {
+
                                             if (!formik.values.otp || formik.values.otp.length !== 6) {
-                                                console.log(formik.values.otp,
-                                                    "formik.values.otp"
-                                                )
-                                                // showToast('error', 'Something went wronssssssssg.');
+                                                // Case 1: OTP not entered or not 6 digits
+                                                console.log("Entered OTP:", formik.values.otp);
                                                 Toast.show({
                                                     type: 'error',
                                                     text1: 'Error',
                                                     text2: 'OTP must be exactly 6 digits',
                                                 });
-                                                // Alert.alert('Invalid OTP', 'OTP must be exactly 6 digits');
+                                            } else if (data?.otp !== formik.values.otp) {
+                                                // Case 2: OTP entered but does not match
+                                                console.log("Entered OTP:", formik.values.otp);
+                                                console.log("Expected OTP:", data?.otp);
+                                                Toast.show({
+                                                    type: 'error',
+                                                    text1: 'Error',
+                                                    text2: 'OTP did not match. Please try again.',
+                                                });
                                             } else {
-                                                try {
-                                                    setLoading(true);
-                                                    const response = await callApi(
-                                                        'https://tech.portal-uat.dpdpconsultants.com/api/v2/create_consent',
-                                                        'POST',
-                                                        {
-                                                            name: formik.values.fullName,
-                                                            department: 'careers',
-                                                            email: formik.values.email,
-                                                            phone: formik.values.contact,
-                                                            otp: formik.values.otp,
-                                                        }
-                                                    );
-                                                    if (response?.code == 200 && response?.data?.message !== "OTP not matched") {
-                                                        Toast.show({
-                                                            type: 'success',
-                                                            text1: 'Success',
-                                                            text2: 'OTP Correct',
-                                                        });
-                                                        setShowConsentModal(true)
-                                                    } else {
+                                                // // Case 3: OTP is valid and matches
+                                                // console.log("OTP submitted:", formik.values.otp);
+                                                // console.log("OTP match success:", data?.otp === formik.values.otp);
 
-                                                        console.log(response?.data?.message, "response?.message")
-                                                        Toast.show({
-                                                            type: 'error',
-                                                            text1: 'Error',
-                                                            text2: response?.data?.message || 'OTP must be exactly 61 digits',
-                                                        });
-                                                    }
+                                                // // Proceed with success logic (e.g., show modal, navigate, etc.)
+                                                // Toast.show({
+                                                //     type: 'success',
+                                                //     text1: 'Success',
+                                                //     text2: 'OTP verified successfully!',
+                                                // });
+                                                openConsentModal();
+                                               
 
-                                                } catch (error) {
-                                                    Alert.alert('Error', error.message || 'OTP verification failed');
-                                                } finally {
-                                                    setLoading(false);
-                                                }
+                                                // Example: setShowConsentModal(true);
                                             }
+
+
+
+
                                         }}
                                     >
                                         <Text style={styles.buttonText}>Submit OTP</Text>
@@ -333,13 +384,13 @@ export default function ContactUs() {
                             <ConsentModal
                                 visible={showConsentModal}
                                 onClose={() => setShowConsentModal(false)}
-                                onAgree={() => {
-                                    setShowConsentModal(false);
-                                    Alert.alert('Consent Given', 'Thank you!');
-                                }}
+                                onAgree={handleConsent}
                                 lang={selectedLang}
                                 setLang={setSelectedLang}
+                                templateText={templateText}
                             />
+
+
                         </Animated.View>
                     )}
                 </ScrollView>
