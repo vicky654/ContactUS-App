@@ -92,18 +92,18 @@ export default function ContactUs() {
                 );
 
                 if (response?.code == '200' && !response?.data?.message.includes("Invalid Email")) {
-                     Toast.show({
-                                                            type: 'success',
-                                                            text1: 'Success',
-                                                            text2: `OTP sent successfully on email${response?.otp}`,
-                                                        });
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Success',
+                        text2: `OTP sent successfully on email${response?.otp}`,
+                    });
                     setShowOTP(true);
                 } else {
-                       Toast.show({
-                                                            type: 'error',
-                                                            text1: 'Error',
-                                                            text2: 'Invalid Email',
-                                                        });
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Invalid Email',
+                    });
                     Alert.alert('Error', response?.message || 'Failed to send OTP');
                 }
 
@@ -171,7 +171,11 @@ export default function ContactUs() {
                                 <TouchableOpacity onPress={() => Linking.openURL('mailto:info@dpdpconsultants.com')}>
                                     <Text style={[styles.footerText, styles.linkText]}>📧 info@dpdpconsultants.com</Text>
                                 </TouchableOpacity>
-                                <Text style={[styles.footerText, { fontWeight: 'bold' }]}>Fill out your details to be contacted1</Text>
+                                <Text style={[styles.footerText, { fontWeight: 'bold' }]}>
+                                    Fill out your details to be contacted.
+                                </Text>
+
+
                             </View>
                             <Text style={styles.label}>Full Name *</Text>
                             <TextInput
@@ -262,6 +266,12 @@ export default function ContactUs() {
                                         value={formik.values.otp}
                                         keyboardType="numeric"
                                     />
+                                    <TouchableOpacity onPress={formik.handleSubmit}>
+                                        <Text style={{ color: '#4361ee', textAlign: 'center', marginBottom: 12 }}>
+                                            Not received OTP? Resend
+                                        </Text>
+                                    </TouchableOpacity>
+
                                     <TouchableOpacity
                                         style={styles.button}
                                         onPress={async () => {
