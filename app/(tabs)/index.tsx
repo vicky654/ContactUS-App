@@ -1,18 +1,34 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Toast from 'react-native-toast-message'; // ✅ Import Toast
-import ContactUs from './../screens/ContactUs'; // ✅ Make sure the path is correct
+import {
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View
+} from 'react-native';
+import Toast from 'react-native-toast-message';
+import ContactUs from './../screens/ContactUs';
 
 export default function HomeScreen() {
   return (
-    <View style={{ flex: 1 }}>
-      <ContactUs />
-      <Toast /> {/* Mount Toast here */}
-    </View>
+    <SafeAreaView
+      style={[
+        styles.safeContainer,
+        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+      ]}
+    >
+      <View style={{ flex: 1 }}>
+        <ContactUs />
+        <Toast />
+      </View>
+    </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#fff', // optional, just to ensure it looks good
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',

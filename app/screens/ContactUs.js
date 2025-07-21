@@ -4,6 +4,7 @@ import {
     Alert,
     Animated,
     KeyboardAvoidingView,
+    Linking,
     Platform,
     RefreshControl,
     SafeAreaView,
@@ -30,7 +31,7 @@ const ContactSchema = Yup.object().shape({
     email: Yup.string().email('Please enter a valid email address').required('Email is required'),
     contact: Yup.string().matches(/^[0-9]{10}$/, 'Contact must be 10 digits').required('Contact is required'),
     topic: Yup.string().required('Please select a topic'),
-    message: Yup.string().min(10, 'Message must be at least 10 characters').required('Message is required'),
+    message: Yup.string().min(3, 'Message must be at least 3 characters').required('Message is required'),
 });
 
 export default function ContactUs() {
@@ -54,23 +55,6 @@ const [items, setItems] = useState([
 
 
     const [data, setData] = useState();
-    // Toast.show({
-    //     type: 'success',
-    //     text1: 'Success',
-    //     text2: 'Your message has been sent!',
-    // });
-
-    // // For error
-    // Toast.show({
-    //     type: 'error',
-    //     text1: 'Error',
-    //     text2: 'Something went wrong!',
-    // });
-
-
-
-
-
     const formik = useFormik({
         initialValues: {
             fullName: '',
@@ -80,7 +64,7 @@ const [items, setItems] = useState([
             message: '',
             otp: '',
         },
-        // validationSchema: ContactSchema,
+        validationSchema: ContactSchema,
         onSubmit: async (values, { setValues }) => {
             const queryParams = {
                 name: values.fullName,
@@ -143,6 +127,9 @@ const [items, setItems] = useState([
             }).start();
         }, 1500);
     }, []);
+
+
+
 const handleConsent = async () => {
     setShowConsentModal(false);
     try {
@@ -160,9 +147,7 @@ const handleConsent = async () => {
       );
 
       if (response?.code === 200 && response?.data?.message !== 'OTP not matched') {
-        setTimeout(() => {
-          Alert.alert('Consent Given', 'Thank you!');
-        }, 2000);
+      Alert.alert('Consent Given', 'Thank you!');
       } else {
         Toast.show({
           type: 'error',
@@ -177,8 +162,6 @@ const handleConsent = async () => {
       setLoading(false);
     }
   };
-
-
 const openConsentModal = async () => {
   try {
     setLoading(true); // Show loader
@@ -197,10 +180,9 @@ const openConsentModal = async () => {
     setLoading(false); // Hide loader
   }
 };
-
-
     return (
-        <SafeAreaView style={styles.container}>
+       <SafeAreaView style={[styles.container, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}>
+
             <StatusBar barStyle="light-content" backgroundColor="#0b0c2a" />
 
             <View style={styles.headerContainer}>

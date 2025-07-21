@@ -16,12 +16,17 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+       "jsEngine": "hermes",
+      "edgeToEdgeEnabled": true,
+      "package": "com.vickyexposanju.contactusapp"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
+    },
+    "updates": {
+      "enabled": false
     },
     "plugins": [
       "expo-router",
@@ -37,6 +42,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f33c2a13-b073-4ae6-ae5d-097dc87e4023"
+      }
     }
   }
 }
