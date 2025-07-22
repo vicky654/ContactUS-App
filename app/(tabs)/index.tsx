@@ -19,7 +19,11 @@ export default function HomeScreen() {
     >
       <View style={{ flex: 1 }}>
         <ContactUs />
-        <Toast />
+ <Toast
+  position="top"
+  topOffset={Platform.OS === 'android' ? 90 : 90}
+/>
+
       </View>
     </SafeAreaView>
   );

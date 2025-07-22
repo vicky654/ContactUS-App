@@ -45,13 +45,13 @@ export default function ContactUs() {
     const [open, setOpen] = useState(false);
     const [templateText, setTemplateText] = useState('');
 
-const [topicValue, setTopicValue] = useState('Compliance Evaluation & Risk Assessment');
+    const [topicValue, setTopicValue] = useState('Compliance Evaluation & Risk Assessment');
 
-const [items, setItems] = useState([
-  { label: 'Compliance Evaluation & Risk Assessment', value: 'Compliance Evaluation & Risk Assessment' },
-  { label: 'Consent Management Solution', value: 'Consent Management Solution' },
-  { label: 'Data Mapping & Inventory', value: 'Data Mapping & Inventory' },
-]);
+    const [items, setItems] = useState([
+        { label: 'Compliance Evaluation & Risk Assessment', value: 'Compliance Evaluation & Risk Assessment' },
+        { label: 'Consent Management Solution', value: 'Consent Management Solution' },
+        { label: 'Data Mapping & Inventory', value: 'Data Mapping & Inventory' },
+    ]);
 
 
     const [data, setData] = useState();
@@ -130,65 +130,65 @@ const [items, setItems] = useState([
 
 
 
-const handleConsent = async () => {
-    setShowConsentModal(false);
-    try {
-      setLoading(true);
-      const response = await callApi(
-        'https://tech.portal-uat.dpdpconsultants.com/api/v2/create_consent',
-        'POST',
-        {
-          name: formik.values.fullName,
-          department: 'careers',
-          email: formik.values.email,
-          phone: formik.values.contact,
-          otp: formik.values.otp,
+    const handleConsent = async () => {
+        setShowConsentModal(false);
+        try {
+            setLoading(true);
+            const response = await callApi(
+                'https://tech.portal-uat.dpdpconsultants.com/api/v2/create_consent',
+                'POST',
+                {
+                    name: formik.values.fullName,
+                    department: 'careers',
+                    email: formik.values.email,
+                    phone: formik.values.contact,
+                    otp: formik.values.otp,
+                }
+            );
+
+            if (response?.code === 200 && response?.data?.message !== 'OTP not matched') {
+                Alert.alert('Consent Given', 'Thank you!');
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response?.data?.message || 'OTP verification failed',
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', error.message || 'OTP verification failed');
+        } finally {
+            setLoading(false);
         }
-      );
+    };
+    const openConsentModal = async () => {
+        try {
+            setLoading(true); // Show loader
+            const response = await callApi(
+                'https://tech.portal-uat.dpdpconsultants.com/api/v2/get/template_details',
+                'GET',
+                { department_name: 'Careers' }
+            );
 
-      if (response?.code === 200 && response?.data?.message !== 'OTP not matched') {
-      Alert.alert('Consent Given', 'Thank you!');
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: response?.data?.message || 'OTP verification failed',
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', error.message || 'OTP verification failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-const openConsentModal = async () => {
-  try {
-    setLoading(true); // Show loader
-    const response = await callApi(
-      'https://tech.portal-uat.dpdpconsultants.com/api/v2/get/template_details',
-      'GET',
-      { department_name: 'Careers' }
-    );
-
-    const template = response?.data || 'No template found';
-    setTemplateText(template);
-    setShowConsentModal(true);
-  } catch (error) {
-    Alert.alert('Error', error.message || 'Failed to load consent template');
-  } finally {
-    setLoading(false); // Hide loader
-  }
-};
+            const template = response?.data || 'No template found';
+            setTemplateText(template);
+            setShowConsentModal(true);
+        } catch (error) {
+            Alert.alert('Error', error.message || 'Failed to load consent template');
+        } finally {
+            setLoading(false); // Hide loader
+        }
+    };
     return (
-       <SafeAreaView style={[styles.container, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}>
+        <SafeAreaView style={[styles.container]}>
 
             <StatusBar barStyle="light-content" backgroundColor="#0b0c2a" />
 
             <View style={styles.headerContainer}>
                 <Text style={styles.headerText}>Contact Us 💬</Text>
             </View>
-      
+
 
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
@@ -196,7 +196,8 @@ const openConsentModal = async () => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
             >
                 <ScrollView
-                    contentContainerStyle={[styles.scrollView, { paddingBottom: 100 }]}
+                contentContainerStyle={[styles.scrollView, { paddingBottom: 100, zIndex: 0 }]}
+
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                     keyboardShouldPersistTaps="handled"
                 >
@@ -259,21 +260,32 @@ const openConsentModal = async () => {
                             )}
 
                             <Text style={styles.label}>Select a Topic *</Text>
-                            <DropDownPicker
-                                open={open}
-                                value={topicValue}
-                                items={items}
-                                setOpen={setOpen}
-                                setValue={(callback) => {
-                                    const val = callback(topicValue);
-                                    setTopicValue(val);
-                                    formik.setFieldValue('topic', val);
-                                }}
-                                setItems={setItems}
-                                style={{ marginBottom: 16 }}
-                                containerStyle={{ zIndex: 1000 }}
-                                dropDownContainerStyle={{ zIndex: 999 }}
-                            />
+                            <View style={{ zIndex: 1000, marginBottom: open ? 160 : 16 }}>
+                                <DropDownPicker
+                                    open={open}
+                                    value={topicValue}
+                                    items={items}
+                                    setOpen={setOpen}
+                                     listMode="SCROLLVIEW"
+                                    setValue={(callback) => {
+                                        const val = callback(topicValue);
+                                        setTopicValue(val);
+                                        formik.setFieldValue('topic', val);
+                                    }}
+                                    setItems={setItems}
+                                    dropDownDirection="AUTO"
+                                    style={{
+                                        borderColor: '#ccc',
+                                        borderRadius: 8,
+                                        backgroundColor: '#fff',
+                                    }}
+                                    dropDownContainerStyle={{
+                                        borderColor: '#ccc',
+                                        backgroundColor: '#fff',
+                                    }}
+                                />
+                            </View>
+
                             {formik.touched.topic && formik.errors.topic && (
                                 <Text style={styles.error}>{formik.errors.topic}</Text>
                             )}
@@ -348,7 +360,7 @@ const openConsentModal = async () => {
                                                 //     text2: 'OTP verified successfully!',
                                                 // });
                                                 openConsentModal();
-                                               
+
 
                                                 // Example: setShowConsentModal(true);
                                             }
