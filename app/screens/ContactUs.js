@@ -148,6 +148,8 @@ export default function ContactUs() {
 
             if (response?.code === 200 && response?.data?.message !== 'OTP not matched') {
                 Alert.alert('Consent Given', 'Thank you!');
+                    setShowOTP(false);
+                formik.resetForm();
             } else {
                 Toast.show({
                     type: 'error',
