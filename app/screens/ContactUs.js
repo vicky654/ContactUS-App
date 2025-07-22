@@ -86,7 +86,7 @@ export default function ContactUs() {
                     Toast.show({
                         type: 'success',
                         text1: 'Success',
-                        text2: `OTP sent successfully on email${response?.otp}`,
+                        text2: `OTP sent successfully on email`,
                     });
                     setData(response);
                     setShowOTP(true);
@@ -186,7 +186,7 @@ export default function ContactUs() {
             <StatusBar barStyle="light-content" backgroundColor="#0b0c2a" />
 
             <View style={styles.headerContainer}>
-                <Text style={styles.headerText}>Contact Us 💬</Text>
+                <Text style={styles.headerText}>Contact Us  💬</Text>
             </View>
 
 
